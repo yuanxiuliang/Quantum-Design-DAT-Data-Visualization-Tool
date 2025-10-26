@@ -7,34 +7,30 @@
 
 ### 📥 下载安装包 / Download Installer
 
-**当前状态：** 项目正在开发中，安装包即将发布
+#### Windows用户 / Windows Users
+- **直接下载**：[Quantum Design DAT Data Visualization Tool.exe](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Windows-x64/Quantum%20Design%20DAT%20Data%20Visualization%20Tool.exe)
+- **安装方式**：直接双击运行，无需安装Python环境
+- **系统要求**：Windows 10/11 (64-bit)
 
-#### 临时使用方式 / Temporary Usage
-由于安装包还在准备中，您可以：
+#### macOS用户 / macOS Users  
+- **直接下载**：[Quantum Design DAT Data Visualization Tool.dmg](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/macOS-x64/Quantum%20Design%20DAT%20Data%20Visualization%20Tool.dmg)
+- **安装方式**：双击dmg文件，拖拽到应用程序文件夹
+- **系统要求**：macOS 10.14+ (支持Intel和Apple Silicon)
 
-1. **从源码运行**（推荐）
-   - 克隆项目到本地
-   - 安装Python依赖
-   - 直接运行主程序
+#### Linux用户 / Linux Users
+- **Ubuntu/Debian**：[.deb包](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Linux-x64/quantum-design-tool.deb) - 使用 `sudo dpkg -i` 安装
+- **CentOS/RHEL**：[.rpm包](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Linux-x64/quantum-design-tool.rpm) - 使用 `sudo rpm -i` 安装
+- **通用版本**：[AppImage](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Linux-x64/QuantumDesignTool.AppImage) - 添加执行权限后直接运行
 
-2. **构建自己的安装包**
-   - 使用项目提供的构建脚本
-   - 生成适合您系统的可执行文件
-
-#### 即将支持的平台 / Upcoming Platforms
-- **Windows**：`.exe` 可执行文件
-- **macOS**：`.dmg` 安装包  
-- **Linux**：`.deb`、`.rpm`、`.AppImage` 多种格式
+**所有版本下载**：[Releases页面](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases)
 
 ### 🎯 5分钟快速上手 / 5-Minute Quick Start
 
-1. **获取源码** - 克隆项目到本地或下载ZIP文件
-2. **安装依赖** - 运行 `pip install -r requirements.txt` 安装必要依赖
-3. **启动程序** - 运行 `python "Quantum Design DAT Data Visualization Tool.py"`
-4. **打开数据文件** - 点击"打开 .dat"按钮，选择您的Quantum Design设备生成的DAT文件
-5. **选择数据列** - 在X轴和Y轴下拉菜单中选择要绘制的数据列
-6. **开始绘图** - 选择绘图类型（折线图/散点图/组合图），程序会自动绘制
-7. **交互操作** - 使用鼠标左键框选放大，右键返回上一级缩放
+1. **下载并运行** - 根据您的系统下载对应的安装包并运行
+2. **打开数据文件** - 点击"打开 .dat"按钮，选择您的Quantum Design设备生成的DAT文件
+3. **选择数据列** - 在X轴和Y轴下拉菜单中选择要绘制的数据列
+4. **开始绘图** - 选择绘图类型（折线图/散点图/组合图），程序会自动绘制
+5. **交互操作** - 使用鼠标左键框选放大，右键返回上一级缩放
 
 ## ✨ 主要功能 / Key Features
 

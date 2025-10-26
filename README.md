@@ -13,24 +13,30 @@
 - **系统要求**：Windows 10/11 (64-bit)
 
 #### macOS用户 / macOS Users  
-- **直接下载**：[Quantum Design DAT Data Visualization Tool.dmg](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/macOS-x64/Quantum%20Design%20DAT%20Data%20Visualization%20Tool.dmg)
-- **安装方式**：双击dmg文件，拖拽到应用程序文件夹
+- **安装方式**：从源码构建（详见下方开发者选项）
 - **系统要求**：macOS 10.14+ (支持Intel和Apple Silicon)
+- **依赖环境**：需要安装Python 3.8+和相关依赖
 
 #### Linux用户 / Linux Users
-- **Ubuntu/Debian**：[.deb包](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Linux-x64/quantum-design-tool.deb) - 使用 `sudo dpkg -i` 安装
-- **CentOS/RHEL**：[.rpm包](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Linux-x64/quantum-design-tool.rpm) - 使用 `sudo rpm -i` 安装
-- **通用版本**：[AppImage](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Linux-x64/QuantumDesignTool.AppImage) - 添加执行权限后直接运行
+- **安装方式**：从源码构建（详见下方开发者选项）
+- **系统要求**：Ubuntu 18.04+ / CentOS 7+ / 其他主流Linux发行版
+- **依赖环境**：需要安装Python 3.8+和相关依赖
 
 **所有版本下载**：[Releases页面](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases)
 
 ### 🎯 5分钟快速上手 / 5-Minute Quick Start
 
-1. **下载并运行** - 根据您的系统下载对应的安装包并运行
+#### Windows用户
+1. **下载并运行** - 点击上方Windows下载链接，下载exe文件并双击运行
 2. **打开数据文件** - 点击"打开 .dat"按钮，选择您的Quantum Design设备生成的DAT文件
 3. **选择数据列** - 在X轴和Y轴下拉菜单中选择要绘制的数据列
 4. **开始绘图** - 选择绘图类型（折线图/散点图/组合图），程序会自动绘制
 5. **交互操作** - 使用鼠标左键框选放大，右键返回上一级缩放
+
+#### macOS/Linux用户
+1. **安装依赖** - 按照下方开发者选项安装Python和依赖
+2. **运行程序** - 使用 `python "Quantum Design DAT Data Visualization Tool.py"` 启动
+3. **后续步骤** - 与Windows用户相同
 
 ## ✨ 主要功能 / Key Features
 
@@ -81,10 +87,11 @@ python "Quantum Design DAT Data Visualization Tool.py"
 ```
 
 ### 构建安装包
-各平台的构建脚本位于 `Releases/` 目录下：
-- Windows: `Releases/Windows-x64/build_windows.bat`
-- macOS: `Releases/macOS-x64/build_mac.sh`
-- Linux: `Releases/Linux-x64/build_linux.sh`
+- **Windows**: 运行 `Releases/Windows-x64/build_windows.bat` 生成exe文件
+- **macOS**: 运行 `Releases/macOS-x64/build_mac.sh` 生成可执行文件（需要先安装依赖）
+- **Linux**: 运行 `Releases/Linux-x64/build_linux.sh` 生成可执行文件（需要先安装依赖）
+
+**注意**: macOS和Linux的构建需要先安装PyInstaller和相关依赖。
 
 ## 📖 详细使用说明 / Detailed Usage
 

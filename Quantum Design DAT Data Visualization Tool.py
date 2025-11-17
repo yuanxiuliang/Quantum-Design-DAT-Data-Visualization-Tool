@@ -159,11 +159,8 @@ class DatPlotterApp:
         self.scaling = scaling
         # GUI state vars
         self._preview_patch = None
-<<<<<<< HEAD
+        # 默认绘图类型：折线
         self.plot_type_var = tk.StringVar(value="line")
-=======
-        self.plot_type_var = tk.StringVar(value="both")
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
         # overlay state: mapping tree-iid -> list of matplotlib artists
         self._overlay_artists = {}
         self._max_overlays = 8
@@ -288,16 +285,13 @@ class DatPlotterApp:
         # single click (with optional Shift) for replace/overlay behavior
         self.seg_tree.bind("<ButtonRelease-1>", self._on_seg_click)
 
-<<<<<<< HEAD
+        # 导出选中数据段按钮（右对齐）
         export_frame = ttk.Frame(filt_frame)
         export_frame.grid(row=6, column=0, columnspan=2, sticky="ew", pady=(0,6))
         # 让左侧空列拉伸，从而使按钮靠右对齐
         export_frame.columnconfigure(0, weight=1)
         export_btn = ttk.Button(export_frame, text="导出选段", command=self.export_segments, style="Custom.TButton")
         export_btn.grid(row=0, column=1, sticky="e")
-
-=======
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
         # drawing range control
         draw_range_frame = ttk.LabelFrame(left_panel, text=self.texts['plot_range'], padding=(6,6))
         draw_range_frame.grid(row=3, column=0, sticky="ew", pady=(8,0))
@@ -317,11 +311,8 @@ class DatPlotterApp:
         plot_type_frame = ttk.Frame(left_panel)
         plot_type_frame.grid(row=4, column=0, sticky="sew", pady=(6,0))
         ttk.Label(plot_type_frame, text=f"{self.texts['plot_type']}:").grid(row=0, column=0, sticky="w")
-<<<<<<< HEAD
+        # 与顶部状态一致：默认折线
         self.plot_type_var = tk.StringVar(value="line")
-=======
-        self.plot_type_var = tk.StringVar(value="both")
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
         ttk.Radiobutton(plot_type_frame, text=self.texts['line_plot'], variable=self.plot_type_var, value="line", command=self._on_user_change).grid(row=0, column=1, sticky="w", padx=(6,0))
         ttk.Radiobutton(plot_type_frame, text=self.texts['scatter_plot'], variable=self.plot_type_var, value="scatter", command=self._on_user_change).grid(row=0, column=2, sticky="w", padx=(6,0))
         ttk.Radiobutton(plot_type_frame, text=self.texts['both_plot'], variable=self.plot_type_var, value="both", command=self._on_user_change).grid(row=0, column=3, sticky="w", padx=(6,0))
@@ -881,7 +872,6 @@ class DatPlotterApp:
         sub = sub.dropna(subset=[xcol, ycol])
         return sub[xcol].to_numpy(), sub[ycol].to_numpy()
 
-<<<<<<< HEAD
     def _extract_segment_df(self, start_row, end_row, xcol, ycol, filter_col):
         """Prepare a dataframe with X, Y, filter column for export."""
         if self.df is None:
@@ -924,9 +914,6 @@ class DatPlotterApp:
         mask_valid = df_clean[[xcol, ycol]].notna().all(axis=1)
         df_clean = df_clean[mask_valid]
         return df_clean
-
-=======
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
     def _clear_overlays(self):
         """Remove overlay artists from the axes and clear state."""
         try:
@@ -1078,7 +1065,6 @@ class DatPlotterApp:
         except Exception:
             pass
 
-<<<<<<< HEAD
     def export_segments(self):
         """Export selected segments horizontally (groups of three columns per segment)."""
         if self.df is None:
@@ -1171,8 +1157,6 @@ class DatPlotterApp:
         self.status.config(text=f"已导出 {len(aligned_frames)} 段到 {save_path}")
         messagebox.showinfo("导出完成", f"成功导出 {len(aligned_frames)} 个数据段至:\n{save_path}")
 
-=======
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
     def _on_mouse_press(self, event):
         """Handle mouse press events for zoom functionality."""
         if event.inaxes != self.ax:

@@ -1,4 +1,4 @@
-('C:\\Users\\yuanx\\Desktop\\ppms_data_plotter\\Releases\\Windows-x64\\build\\Quantum '
+('C:\\Users\\yuanx\\SynologyDrive\\developer\\Quantum-Design-DAT-Data-Visualization-Tool-master\\Releases\\Windows-x64\\build\\Quantum '
  'Design DAT Data Visualization Tool\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\yuanx\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages\\PIL\\__init__.py',

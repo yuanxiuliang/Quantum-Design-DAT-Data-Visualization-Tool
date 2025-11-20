@@ -142,6 +142,9 @@ class DatPlotterApp:
             self.fileopentime_dt = None
             self.dpi = dpi
             self.scaling = scaling
+            # measurement type from BYAPP (e.g. HeatCapacity, VSM, Resistivity)
+            self.measure_type = None
+            
             # minimal non-GUI placeholders
             self._preview_patch = None
             self.plot_type_var = None
@@ -157,6 +160,9 @@ class DatPlotterApp:
         self.fileopentime_dt = None
         self.dpi = dpi
         self.scaling = scaling
+        # measurement type from BYAPP (e.g. HeatCapacity, VSM, Resistivity)
+        self.measure_type = None
+        
         # GUI state vars
         self._preview_patch = None
         # 默认绘图类型：折线
@@ -482,14 +488,17 @@ class DatPlotterApp:
         try:
             # Update progress
             self._update_progress(progress_dialog, 20, "正在读取文件头部...")
-            header_lines, data_start_line = self._read_header(path)
+            header_lines, data_start_line, encoding = self._read_header(path)
             
             self._update_progress(progress_dialog, 40, "正在解析时间信息...")
             self._parse_fileopentime(header_lines)
+            # Detect measurement type (HeatCapacity, VSM, Resistivity, etc.)
+            self._detect_measure_type(header_lines)
             
             self._update_progress(progress_dialog, 60, "正在读取数据...")
             # read data starting at data_start_line (0-based index), header is at that line
-            self.df = pd.read_csv(path, skiprows=data_start_line, header=0, engine='python')
+            # use the same encoding that successfully parsed the header
+            self.df = pd.read_csv(path, skiprows=data_start_line, header=0, engine='python', encoding=encoding)
             
             self._update_progress(progress_dialog, 80, "正在处理列名...")
             # strip column names
@@ -540,15 +549,82 @@ class DatPlotterApp:
             except Exception:
                 # ignore if filter combobox isn't available for some reason
                 pass
-            # defaults
-            if "Time Stamp (sec)" in self.df.columns:
-                self.x_combo.set("Time Stamp (sec)")
-            else:
-                self.x_combo.set(self.df.columns[0])
-            if "Moment (emu)" in self.df.columns:
-                self.y_combo.set("Moment (emu)")
-            else:
-                self.y_combo.set(self.df.columns[1] if len(self.df.columns)>1 else self.df.columns[0])
+            # Set intelligent defaults for X/Y based on measurement type and column names
+            cols = list(self.df.columns)
+            default_x = None
+            default_y = None
+
+            # Helper to choose the first existing column from a preference list
+            def _pick_first(existing, candidates):
+                for name in candidates:
+                    if name in existing:
+                        return name
+                return None
+
+            mtype = (self.measure_type or "").lower()
+
+            if "heatcapacity" in mtype:
+                # Heat capacity: T vs Cp
+                default_x = _pick_first(cols, [
+                    "Sample Temp (Kelvin)",
+                    "Puck Temp (Kelvin)",
+                    "System Temp (Kelvin)",
+                    "Temperature (K)",
+                    "Temp (Kelvin)",
+                ])
+                default_y = _pick_first(cols, [
+                    "Samp HC (mJ/g-K)",
+                    "Samp HC/Temp (mJ/g-K/K)",
+                    "Total HC (uJ/K)",
+                    "Total HC (µJ/K)",
+                    "Total HC (�J/K)",
+                ])
+            elif "vsm" in mtype or "magnet" in mtype:
+                # Magnetic: M vs H (or time vs moment as fallback)
+                default_x = _pick_first(cols, [
+                    "Magnetic Field (Oe)",
+                    "Field (Oersted)",
+                    "Field (Oe)",
+                    "Time Stamp (sec)",
+                    "Time Stamp (Seconds)",
+                ])
+                default_y = _pick_first(cols, [
+                    "Moment (emu)",
+                ])
+            elif "resist" in mtype or "transport" in mtype:
+                # Transport / resistivity: rho/R vs T or H
+                default_x = _pick_first(cols, [
+                    "Temperature (K)",
+                    "Sample Temp (Kelvin)",
+                    "Puck Temp (Kelvin)",
+                    "Magnetic Field (Oe)",
+                    "Field (Oersted)",
+                    "Time Stamp (sec)",
+                    "Time Stamp (Seconds)",
+                ])
+                # Try to find a resistivity / resistance-like column
+                default_y = _pick_first(cols, [
+                    c for c in cols
+                    if ("Resistivity" in c or "Resistance" in c) and "Std" not in c
+                ])
+
+            # If still not decided, fall back to previous generic strategy
+            if default_x is None:
+                if "Time Stamp (sec)" in cols:
+                    default_x = "Time Stamp (sec)"
+                elif "Time Stamp (Seconds)" in cols:
+                    default_x = "Time Stamp (Seconds)"
+                else:
+                    default_x = cols[0]
+
+            if default_y is None:
+                if "Moment (emu)" in cols:
+                    default_y = "Moment (emu)"
+                else:
+                    default_y = cols[1] if len(cols) > 1 else cols[0]
+
+            self.x_combo.set(default_x)
+            self.y_combo.set(default_y)
 
             # set default end to total rows
             self.start_var.set("1")
@@ -573,19 +649,36 @@ class DatPlotterApp:
             self.status.config(text=self.texts['error_file_format'])
 
     def _read_header(self, path):
-        header_lines = []
-        data_start = None
-        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-            for idx, line in enumerate(f):
-                stripped = line.strip()
-                header_lines.append(line.rstrip("\n"))
-                if stripped == "[Data]":
-                    # data header is next line (idx+1). We'll tell caller to skip rows up to idx+1
-                    data_start = idx+1
-                    break
-        if data_start is None:
-            raise ValueError("未找到 [Data] 段")
-        return header_lines, data_start
+        """Read header lines and locate [Data] marker, trying multiple encodings.
+
+        Returns (header_lines, data_start_index, encoding_used).
+        data_start_index is the 0-based index of the header line immediately
+        following "[Data]" (i.e. the column header row for pandas).
+        """
+        encodings_to_try = ["utf-8", "utf-16", "utf-16le", "latin-1"]
+        last_error = None
+        for enc in encodings_to_try:
+            header_lines = []
+            data_start = None
+            try:
+                with open(path, 'r', encoding=enc) as f:
+                    for idx, line in enumerate(f):
+                        stripped = line.strip()
+                        header_lines.append(line.rstrip("\n"))
+                        if stripped == "[Data]":
+                            # data header is next line (idx+1). We'll tell caller to skip rows up to idx+1
+                            data_start = idx+1
+                            break
+                if data_start is not None:
+                    return header_lines, data_start, enc
+            except Exception as e:
+                last_error = e
+                continue
+
+        # If we reach here, either we never found [Data] or all encodings failed
+        if last_error is not None:
+            raise ValueError(f"读取头部失败: {last_error}")
+        raise ValueError("未找到 [Data] 段")
 
     def _parse_fileopentime(self, header_lines):
         self.fileopentime_ts = None
@@ -611,6 +704,22 @@ class DatPlotterApp:
                             self.fileopentime_dt = datetime.strptime(date_str + " " + time_str, "%Y-%m-%d %H:%M:%S")
                         except:
                             self.fileopentime_dt = None
+                break
+
+    def _detect_measure_type(self, header_lines):
+        """Detect measurement type from BYAPP line in header.
+
+        Examples of BYAPP lines:
+        - BYAPP,HeatCapacity,3.9.6,1.7
+        - BYAPP,VSM,1.0,1.0
+        - BYAPP, Resistivity, 2.0, 1.0
+        """
+        self.measure_type = None
+        for ln in header_lines:
+            if ln.startswith("BYAPP"):
+                parts = [p.strip() for p in ln.split(",")]
+                if len(parts) >= 2 and parts[1]:
+                    self.measure_type = parts[1]
                 break
 
     def _get_range_indices(self):

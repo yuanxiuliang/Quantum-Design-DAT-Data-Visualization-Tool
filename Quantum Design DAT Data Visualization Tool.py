@@ -331,6 +331,7 @@ class DatPlotterApp:
 
         # Use figure DPI tuned to system DPI and place canvas in right panel
         self.fig, self.ax = plt.subplots(figsize=(6, 4), dpi=self.dpi)
+        self.fig.subplots_adjust(left=0.15, right=0.88, bottom=0.12, top=0.98)
         self.canvas = FigureCanvasTkAgg(self.fig, master=right_panel)
         self.canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
         # status bar at bottom of main window
@@ -806,6 +807,8 @@ class DatPlotterApp:
             messagebox.showerror("错误", f"准备数据失败: {e}")
             return
         self.ax.clear()
+        # Restore consistent plot margins each time we redraw
+        self.fig.subplots_adjust(left=0.15, right=0.88, bottom=0.12, top=0.98)
         plot_t = self.plot_type_var.get()
         x = df[xcol]
         y = df[ycol]

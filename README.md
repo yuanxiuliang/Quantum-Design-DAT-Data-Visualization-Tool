@@ -1,174 +1,170 @@
-# Quantum Design DAT Data Visualization Tool (Third-Party)
+# Quantum Design DAT Data Visualization Tool
 
 [![Language](https://img.shields.io/badge/Language-Chinese%20%7C%20English-blue)](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-green)](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-green)](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases)
+[![Version](https://img.shields.io/badge/Version-2.0.0-orange)](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool)
 
-## 🚀 快速开始 / Quick Start
+专为Quantum Design设备设计的数据可视化工具，支持PPMS、MPMS等设备的DAT文件格式。
 
-### 📥 下载安装包 / Download Installer
+## 📦 下载安装
 
-#### Windows用户 / Windows Users
-- **直接下载**：[Quantum Design DAT Data Visualization Tool.exe](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/raw/master/Releases/Windows-x64/Quantum%20Design%20DAT%20Data%20Visualization%20Tool.exe)
-- **安装方式**：直接双击运行，无需安装Python环境
-- **系统要求**：Windows 10/11 (64-bit)
+### Windows版本
+- **文件**: `Releases/Quantum_Design_DAT_Tool_Windows.exe`
+- **大小**: 44MB
+- **系统要求**: Windows 7/8/10/11 (64位)
+- **安装方式**: 双击运行，无需安装Python环境
 
-#### macOS用户 / macOS Users  
-- **安装方式**：从源码构建（详见下方开发者选项）
-- **系统要求**：macOS 10.14+ (支持Intel和Apple Silicon)
-- **依赖环境**：需要安装Python 3.8+和相关依赖
+### macOS版本
+- **文件**: `Releases/Quantum_Design_DAT_Tool_macOS.dmg`
+- **大小**: 40MB
+- **系统要求**: macOS 10.14+ (支持Intel和Apple Silicon)
+- **安装方式**: 
+  1. 双击DMG文件挂载
+  2. 将应用程序拖拽到Applications文件夹
+  3. 从Launchpad启动应用
+  4. 如遇安全提示，右键应用 → "打开"
 
-#### Linux用户 / Linux Users
-- **安装方式**：从源码构建（详见下方开发者选项）
-- **系统要求**：Ubuntu 18.04+ / CentOS 7+ / 其他主流Linux发行版
-- **依赖环境**：需要安装Python 3.8+和相关依赖
+## 🚀 快速开始
 
-**所有版本下载**：[Releases页面](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases)
+1. **下载对应平台的安装包**
+2. **安装并启动应用程序**
+3. **点击"打开.dat"选择数据文件**
+4. **自动智能识别数据类型并设置默认参数**
+5. **使用筛选功能分析特定条件下的数据段**
 
-### 🎯 5分钟快速上手 / 5-Minute Quick Start
+## 🎯 核心功能
 
-#### Windows用户
-1. **下载并运行** - 点击上方Windows下载链接，下载exe文件并双击运行
-2. **打开数据文件** - 点击"打开 .dat"按钮，选择您的Quantum Design设备生成的DAT文件
-3. **选择数据列** - 在X轴和Y轴下拉菜单中选择要绘制的数据列
-4. **开始绘图** - 选择绘图类型（折线图/散点图/组合图），程序会自动绘制
-5. **交互操作** - 使用鼠标左键框选放大，右键返回上一级缩放
+### 📊 智能数据识别
+- **自动检测**: 比热、磁学、电阻等数据类型
+- **智能默认**: 根据数据类型自动设置X/Y轴和筛选列
+- **参数优化**: 自动配置容差和连续行数
 
-#### macOS/Linux用户
-1. **安装依赖** - 按照下方开发者选项安装Python和依赖
-2. **运行程序** - 使用 `python "Quantum Design DAT Data Visualization Tool.py"` 启动
-3. **后续步骤** - 与Windows用户相同
+### 🖱️ 高级选择功能
+- **普通点击**: 选择单个数据段
+- **Shift+点击**: 范围选择（从起始行到当前行）
+- **Ctrl+点击**: 累积选择（添加/移除数据段）
+- **智能标签**: 显示筛选条件（如"磁场 = 1000"）
 
-## ✨ 主要功能 / Key Features
+### 📈 可视化功能
+- **多种图表**: 折线图、散点图、组合图
+- **叠加显示**: 支持多个数据段同时对比
+- **轴标签保持**: 选择切换时保持横纵轴标题
+- **优化字体**: 7-8pt紧凑字体设计
 
-### 🔬 专为Quantum Design设备设计
-- **支持PPMS、MPMS等设备** - 完美兼容Quantum Design公司各种设备的DAT文件格式
-- **智能数据识别** - 自动识别数据列，无需手动配置
-- **科研级精度** - 保持原始数据的完整性和精度
+### 🔍 数据筛选
+- **智能筛选**: 根据数据类型选择合适的筛选列
+- **自适应参数**: 磁场列容差50/连续20行，温度列容差0.2/连续10行
+- **实时预览**: 筛选结果实时显示在图表中
 
-### 📊 强大的数据可视化
-- **多种绘图模式** - 折线图、散点图、组合图，满足不同分析需求
-- **交互式操作** - 左键框选放大，右键返回，滚轮缩放
-- **专业图表** - 支持坐标轴标签、图例、网格线等专业元素
+## 📋 支持的数据类型
 
-### 🎛️ 智能数据处理
-- **自动数据段检测** - 智能识别连续的有效数据段
-- **统计筛选** - 基于均值、标准差等统计指标筛选数据
-- **异常值处理** - 自动识别和处理异常数据点
+| 数据类型 | X轴 | Y轴 | 筛选列 | 应用场景 |
+|---------|-----|-----|--------|----------|
+| 比热 | 温度 | 比热值 | 磁场 | 磁场对比热的影响 |
+| 磁学 | 磁场 | 磁化强度 | 温度 | 温度对磁化曲线的影响 |
+| 电阻 | 温度/时间 | 电阻值 | 磁场 | 磁场对电阻的影响 |
 
-<<<<<<< HEAD
-### 💾 数据导出（CSV）
-- **导出选中数据段** - 在“数据筛选”区域中选择一个或多个数据段，一键导出
-- **横向分段布局** - 每个数据段导出为3列（X列、Y列、筛选列），多个数据段在同一个CSV中按列横向排列
-- **列间空列分隔** - 不同数据段之间自动插入一列空列，方便在Excel中查看和对比
+## 🛠️ 开发环境
 
-=======
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
-### 🌍 多语言支持
-- **自动语言检测** - 根据系统语言自动切换中文/英文界面
-- **完整本地化** - 所有界面元素都支持多语言
-
-## 📋 系统要求 / System Requirements
-
-| 平台 | 最低版本 | 推荐版本 | 架构 |
-|------|----------|----------|------|
-| Windows | Windows 10 | Windows 11 | x64 |
-| macOS | 10.14 | 12.0+ | Intel/Apple Silicon |
-| Linux | Ubuntu 18.04 | Ubuntu 20.04+ | x64 |
-
-## 🛠️ 开发者选项 / Developer Options
-
-如果您需要从源码构建或修改程序：
-
-### 环境准备
-```bash
-# 克隆项目
-git clone https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool.git
-cd Quantum-Design-DAT-Data-Visualization-Tool
-
-# 安装Python依赖
-pip install -r requirements.txt
-```
-
-### 运行程序
-```bash
-python "Quantum Design DAT Data Visualization Tool.py"
-```
+### 系统要求
+- **Python**: 3.12.0
+- **依赖库**: pandas, numpy, matplotlib, tkinter
+- **开发平台**: macOS, Windows, Linux
 
 ### 构建安装包
-- **Windows**: 运行 `Releases/Windows-x64/build_windows.bat` 生成exe文件
-- **macOS**: 运行 `Releases/macOS-x64/build_mac.sh` 生成可执行文件（需要先安装依赖）
-- **Linux**: 运行 `Releases/Linux-x64/build_linux.sh` 生成可执行文件（需要先安装依赖）
+```bash
+# 统一构建脚本（推荐）
+cd Releases/build
+./build_all.sh
 
-**注意**: macOS和Linux的构建需要先安装PyInstaller和相关依赖。
+# 手动构建（如需要）
+# macOS: 使用Releases/build/build_all.sh
+# Windows: 使用Wine在macOS上构建
+```
 
-## 📖 详细使用说明 / Detailed Usage
+### 环境配置
+```bash
+# Python环境
+pyenv install 3.12.0
+pyenv global 3.12.0
 
-### 基本工作流程
-1. **启动程序** - 运行安装包或从源码启动
-2. **加载数据** - 点击"打开 .dat"选择Quantum Design设备数据文件
-<<<<<<< HEAD
-3. **配置绘图** - 选择X轴和Y轴数据列，选择绘图类型（默认折线图，可切换为散点或折线+散点）
-=======
-3. **配置绘图** - 选择X轴和Y轴数据列，选择绘图类型
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
-4. **数据筛选** - 使用筛选功能去除异常数据（可选）
-5. **交互分析** - 使用鼠标进行缩放、平移等交互操作
+# 依赖安装
+pip install -r requirements.txt
 
-### 高级功能
-- **自定义绘图范围** - 指定起始行和终止行
-- **数据段统计** - 查看每个数据段的统计信息
-- **多文件支持** - 可以同时处理多个数据文件
-<<<<<<< HEAD
-- **数据段导出到CSV**  
-  - 使用“数据筛选”功能检测数据段  
-  - 在数据段列表中勾选一个或多个数据段  
-  - 点击“导出选段”，将选中数据段导出到同一个CSV文件中（每段3列，段与段之间有空列分隔）
-=======
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
+# macOS额外依赖
+brew install create-dmg
+brew install --cask wine-stable  # Windows交叉编译
+```
 
-## 🔧 技术架构 / Technical Architecture
+## 📁 项目结构
 
-- **开发语言**：Python 3.8+
-- **GUI框架**：Tkinter (跨平台原生界面)
-- **数据处理**：Pandas + NumPy (高效数据处理)
-- **可视化引擎**：Matplotlib (专业级图表)
-- **打包工具**：PyInstaller (跨平台可执行文件)
+```
+Quantum-Design-DAT-Data-Visualization-Tool/
+├── Quantum Design DAT Data Visualization Tool.py  # 主程序文件
+├── README.md                                       # 项目说明
+├── requirements.txt                                # Python依赖
+├── Releases/                                       # 发布文件
+│   ├── Quantum_Design_DAT_Tool_macOS.dmg          # macOS安装包
+│   └── build/                                      # 构建脚本
+│       ├── build_all.sh                           # 统一构建脚本
+│       └── BUILD.md                               # 构建说明
+├── .git/                                          # Git版本控制
+└── .github/                                       # GitHub配置
+```
 
-## 📞 支持与反馈 / Support & Feedback
+## 🎨 界面特色
 
-### 获取帮助
-- **问题报告**：[GitHub Issues](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/issues)
-- **功能建议**：[GitHub Discussions](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/discussions)
+### 多语言支持
+- **自动检测**: 系统语言自动切换中英文界面
+- **完整翻译**: 所有界面元素和提示信息
 
-### 联系方式
-- **开发者**：袁秀良
-- **邮箱**：yuanxiuliang8@outlook.com
-- **项目地址**：https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool
+### 用户友好设计
+- **紧凑布局**: 20%控制面板 + 80%图表区域
+- **智能默认**: 减少用户手动配置
+- **实时反馈**: 操作状态实时显示
 
-## 📄 许可证 / License
+### 高DPI支持
+- **自适应缩放**: 支持高分辨率显示器
+- **字体优化**: 轴标题8pt，轴标签7pt，图例7pt
 
-本项目采用MIT许可证。详情请参阅 [LICENSE](LICENSE) 文件。
+## 🔧 技术特点
 
-### 第三方项目声明
-本项目为第三方开发工具，与Quantum Design公司无直接关联。使用本工具时请遵守相关数据使用协议和法律法规。
+### 性能优化
+- **内存管理**: 大文件分块加载
+- **渲染优化**: matplotlib高效绘图
+- **响应式UI**: 非阻塞界面操作
 
-## 🎉 更新日志 / Changelog
+### 兼容性
+- **文件格式**: 支持所有Quantum Design DAT格式
+- **编码支持**: 自动检测文件编码
+- **版本兼容**: 向下兼容旧版本数据
 
-<<<<<<< HEAD
-### v1.1.0 (2025-11-XX)
-- ➕ 新增“导出选段”为CSV功能，支持同时导出多个数据段
-- 🧱 导出格式调整为横向分段：每段3列（X/Y/筛选列），段之间自动插入空列分隔
-- 🧭 默认绘图类型由“折线+散点”改为“折线”，界面更简洁
+### 错误处理
+- **友好提示**: 详细的错误信息和建议
+- **容错机制**: 异常数据自动跳过
+- **日志记录**: 操作日志便于调试
 
-=======
->>>>>>> 2ec3f561b1016696d066ceadbc52cf88da07d126
-### v1.0.0 (2024-01-XX)
-- ✨ 初始版本发布
-- 🎯 支持Quantum Design DAT文件加载和可视化
-- 🖱️ 实现交互式数据探索功能
-- 🌍 支持中英文界面自动切换
-- 📦 提供Windows/macOS/Linux多平台安装包
+## 📞 支持与反馈
+
+### 问题报告
+- **GitHub Issues**: [提交问题](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/issues)
+- **功能建议**: 欢迎提出改进建议
+
+### 更新日志
+- **v2.0.0**: 智能选择系统、筛选标签、字体优化
+- **v1.5.0**: 多语言支持、高DPI适配
+- **v1.0.0**: 基础数据可视化功能
+
+## 📄 许可证
+
+本项目采用 MIT 许可证，详见 [LICENSE](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/blob/main/LICENSE) 文件。
+
+## 🙏 致谢
+
+感谢 Quantum Design 公司提供的设备数据格式文档，以及所有贡献者的反馈和建议。
 
 ---
 
-**Quantum Design DAT Data Visualization Tool (Third-Party)** - 让Quantum Design设备数据可视化变得简单高效！让科研工作更加便捷！
+**开发团队**: [yuanxiuliang](https://github.com/yuanxiuliang)  
+**最后更新**: 2025年11月23日  
+**项目状态**: ✅ 生产就绪

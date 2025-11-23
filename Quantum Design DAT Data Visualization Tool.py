@@ -178,16 +178,23 @@ class DatPlotterApp:
         self._select_start = None
         self._select_end = None
         self._selection_rect = None
+        
+        # selection state tracking
+        self._last_selected_iid = None  # 最后选中的项目ID
+        self._ctrl_selected_iids = set()  # Ctrl选择的项目ID集合
+        self._shift_start_iid = None  # Shift选择的起始项目ID
+        self._current_selection_mode = None  # 当前选择模式: 'normal', 'shift', 'ctrl'
+        self._current_range_iids = set()  # 当前范围选择的所有项目ID
 
         # adjust matplotlib global sizes to suit high-DPI
         try:
             mpl.rcParams['figure.dpi'] = self.dpi
             mpl.rcParams['savefig.dpi'] = self.dpi
-            mpl.rcParams['axes.titlesize'] = max(10, mpl.rcParams.get('axes.titlesize', 12) * self.scaling)
-            mpl.rcParams['axes.labelsize'] = max(9, mpl.rcParams.get('axes.labelsize', 10) * self.scaling)
-            mpl.rcParams['xtick.labelsize'] = max(8, mpl.rcParams.get('xtick.labelsize', 8) * self.scaling)
-            mpl.rcParams['ytick.labelsize'] = max(8, mpl.rcParams.get('ytick.labelsize', 8) * self.scaling)
-            mpl.rcParams['legend.fontsize'] = max(8, mpl.rcParams.get('legend.fontsize', 9) * self.scaling)
+            mpl.rcParams['axes.titlesize'] = 8 * self.scaling
+            mpl.rcParams['axes.labelsize'] = 7 * self.scaling
+            mpl.rcParams['xtick.labelsize'] = 7 * self.scaling
+            mpl.rcParams['ytick.labelsize'] = 7 * self.scaling
+            mpl.rcParams['legend.fontsize'] = 7 * self.scaling
         except Exception:
             pass
         
@@ -626,6 +633,63 @@ class DatPlotterApp:
 
             self.x_combo.set(default_x)
             self.y_combo.set(default_y)
+            
+            # Set intelligent default for filter column (different from X/Y)
+            default_filter = None
+            
+            if "heatcapacity" in mtype:
+                # Heat capacity: filter by magnetic field
+                default_filter = _pick_first(cols, [
+                    "Magnetic Field (Oe)",
+                    "Field (Oersted)",
+                    "Field (Oe)",
+                ])
+            elif "vsm" in mtype or "magnet" in mtype:
+                # Magnetic: filter by temperature
+                default_filter = _pick_first(cols, [
+                    "Sample Temp (Kelvin)",
+                    "Puck Temp (Kelvin)",
+                    "System Temp (Kelvin)",
+                    "Temperature (K)",
+                    "Temp (Kelvin)",
+                ])
+            elif "resist" in mtype or "transport" in mtype:
+                # Transport / resistivity: filter by magnetic field
+                default_filter = _pick_first(cols, [
+                    "Magnetic Field (Oe)",
+                    "Field (Oersted)",
+                    "Field (Oe)",
+                ])
+            
+            # If still not decided, pick first numeric column that's not X or Y
+            if default_filter is None:
+                for col in cols:
+                    if col != default_x and col != default_y:
+                        # Check if column is numeric
+                        try:
+                            pd.to_numeric(self.df[col], errors='raise')
+                            default_filter = col
+                            break
+                        except:
+                            continue
+            
+            # Set filter column default
+            if default_filter:
+                self.filter_col_cb.set(default_filter)
+                
+                # Set default tolerance and min length based on filter column type
+                if "field" in default_filter.lower() or "magnetic" in default_filter.lower():
+                    # Magnetic field: larger tolerance and longer sequences
+                    self.filter_tol_var.set("50")
+                    self.filter_minlen_var.set("20")
+                elif "temp" in default_filter.lower() or "kelvin" in default_filter.lower() or "temperature" in default_filter.lower():
+                    # Temperature: smaller tolerance and shorter sequences
+                    self.filter_tol_var.set("0.2")
+                    self.filter_minlen_var.set("10")
+                else:
+                    # Other columns: use default values
+                    self.filter_tol_var.set("0.2")
+                    self.filter_minlen_var.set("10")
 
             # set default end to total rows
             self.start_var.set("1")
@@ -819,10 +883,11 @@ class DatPlotterApp:
             self.ax.scatter(x, y, s=8, label="points")
         self.ax.set_xlabel(xcol)
         self.ax.set_ylabel(ycol)
-        title = f"{ycol} vs {xcol}"
-        if self.filepath:
-            title = f"{title} — {os.path.basename(self.filepath)}"
-        self.ax.set_title(title)
+        # 移除图表标题，只保留轴标签
+        # title = f"{ycol} vs {xcol}"
+        # if self.filepath:
+        #     title = f"{title} — {os.path.basename(self.filepath)}"
+        # self.ax.set_title(title)
         self.ax.grid(True)
         if plot_t in ("both",):
             self.ax.legend()
@@ -847,6 +912,9 @@ class DatPlotterApp:
                 self.seg_tree.delete(it)
         except Exception:
             pass
+        
+        # 清除选择状态
+        self._clear_selection_state()
 
         if self.df is None:
             messagebox.showwarning("未加载数据", "请先打开 .dat 文件")
@@ -1049,6 +1117,7 @@ class DatPlotterApp:
         """Plot a segment identified by tree iid. overlay=False replaces main plot, True overlays."""
         try:
             vals = self.seg_tree.item(iid, 'values')
+            filter_mean = vals[0]  # 筛选均值
             start = int(vals[2])
             end = int(vals[3])
         except Exception:
@@ -1058,23 +1127,35 @@ class DatPlotterApp:
             return
         plot_t = self.plot_type_var.get() if hasattr(self, 'plot_type_var') else 'both'
         artists = []
+        
+        # 创建包含筛选均值的标签
+        filter_col = self.filter_col_cb.get()
+        label = f"{filter_col} = {filter_mean}"
+        
         if not overlay:
             # clear overlays and main axes
             self._clear_overlays()
             try:
                 self.ax.clear()
+                # 重新设置轴标签
+                xcol = self.x_combo.get()
+                ycol = self.y_combo.get()
+                if xcol and ycol:
+                    self.ax.set_xlabel(xcol)
+                    self.ax.set_ylabel(ycol)
+                self.ax.grid(True)
             except Exception:
                 pass
         # draw according to plot type
         if plot_t in ('line', 'both'):
             try:
-                ln, = self.ax.plot(x, y, label=f"seg_{iid}")
+                ln, = self.ax.plot(x, y, label=label)
                 artists.append(ln)
             except Exception:
                 pass
         if plot_t in ('scatter', 'both'):
             try:
-                sc = self.ax.scatter(x, y, s=10)
+                sc = self.ax.scatter(x, y, s=10, label=label)
                 artists.append(sc)
             except Exception:
                 pass
@@ -1093,6 +1174,14 @@ class DatPlotterApp:
                     self.seg_tree.item(it, tags=())
             except Exception:
                 pass
+        
+        # 显示图例，特别是当有多个数据段时
+        try:
+            if len(self._overlay_artists) > 0 or not overlay:
+                self.ax.legend()
+        except Exception:
+            pass
+            
         try:
             self.ax.relim()
             self.ax.autoscale_view()
@@ -1103,52 +1192,164 @@ class DatPlotterApp:
             except Exception:
                 pass
 
+    def _get_all_tree_items(self):
+        """获取树形控件中所有项目的列表，按显示顺序"""
+        try:
+            return list(self.seg_tree.get_children(''))
+        except Exception:
+            return []
+    
+    def _get_item_index(self, iid):
+        """获取项目在树形控件中的索引位置"""
+        try:
+            items = self._get_all_tree_items()
+            return items.index(iid) if iid in items else -1
+        except Exception:
+            return -1
+    
+    def _get_current_selected_iids(self):
+        """获取当前所有选中的项目ID"""
+        selected = set()
+        
+        if self._current_selection_mode == 'shift':
+            selected.update(self._current_range_iids)
+        elif self._current_selection_mode == 'ctrl':
+            selected.update(self._ctrl_selected_iids)
+        elif self._current_selection_mode == 'normal' and self._last_selected_iid:
+            selected.add(self._last_selected_iid)
+            
+        return selected
+    
+    def _plot_selected_items(self, selected_iids):
+        """绘制选中的项目"""
+        if not selected_iids:
+            return
+            
+        # 清除之前的叠加
+        self._clear_overlays()
+        
+        # 获取所有项目并排序
+        all_items = self._get_all_tree_items()
+        selected_items = [iid for iid in all_items if iid in selected_iids]
+        
+        if not selected_items:
+            return
+            
+        # 绘制第一个作为主图
+        self._plot_segment(selected_items[0], overlay=False)
+        
+        # 其余作为叠加
+        for iid in selected_items[1:]:
+            if len(self._overlay_artists) < self._max_overlays:
+                self._plot_segment(iid, overlay=True)
+    
+    def _clear_selection_state(self):
+        """清除选择状态"""
+        self._last_selected_iid = None
+        self._ctrl_selected_iids.clear()
+        self._shift_start_iid = None
+        self._current_selection_mode = None
+        self._current_range_iids.clear()
+        self._clear_overlays()
+    
     def _on_seg_click(self, event):
-        """Handle single click on seg_tree rows; overlay if Shift held, else replace."""
-        # determine item under pointer
+        """Handle single click with improved selection logic."""
         try:
             iid = self.seg_tree.identify_row(event.y)
             if not iid:
                 return
-            # detect shift: prefer event.state but fallback to key tracking
+            
+            # detect modifier keys
             shift = False
+            ctrl = False
             try:
-                shift = bool(event.state & 0x0001)
+                shift = bool(event.state & 0x0001)  # Shift key
+                ctrl = bool(event.state & 0x0004)   # Ctrl key (Command on Mac)
             except Exception:
-                # fallback: use tkinter key state (not implemented here)
-                shift = False
-            if shift:
-                # overlay toggle
-                if iid in self._overlay_artists:
-                    # remove overlay
-                    for a in self._overlay_artists.get(iid, []):
-                        try:
-                            a.remove()
-                        except Exception:
-                            pass
-                    try:
-                        self.seg_tree.item(iid, tags=())
-                    except Exception:
-                        pass
-                    try:
-                        del self._overlay_artists[iid]
-                    except Exception:
-                        pass
-                    try:
-                        self.canvas.draw()
-                    except Exception:
-                        pass
-                else:
-                    # add overlay
-                    if len(self._overlay_artists) >= self._max_overlays:
-                        messagebox.showinfo('提示', f'最多允许 {self._max_overlays} 个叠加段')
-                        return
-                    self._plot_segment(iid, overlay=True)
+                pass
+            
+            if ctrl:
+                # Ctrl模式: 累积或去选择
+                self._handle_ctrl_selection(iid)
+                
+            elif shift:
+                # Shift模式: 范围选择
+                self._handle_shift_selection(iid)
+                
             else:
-                # replace mode
-                self._plot_segment(iid, overlay=False)
+                # 普通点击: 建立初始选择
+                self._handle_normal_selection(iid)
+                
         except Exception:
             pass
+    
+    def _handle_normal_selection(self, iid):
+        """处理普通点击选择"""
+        # 清除之前的选择状态
+        self._clear_selection_state()
+        
+        # 建立新的选择
+        self._last_selected_iid = iid
+        self._current_selection_mode = 'normal'
+        
+        # 绘制选中的项目
+        selected_iids = {iid}
+        self._plot_selected_items(selected_iids)
+    
+    def _handle_shift_selection(self, iid):
+        """处理Shift范围选择"""
+        # 确定起始基准
+        if not self._shift_start_iid:
+            # 检查是否有当前选择作为起始基准
+            current_selected = self._get_current_selected_iids()
+            if current_selected and self._current_selection_mode == 'normal':
+                # 使用当前普通选择作为起始基准
+                self._shift_start_iid = self._last_selected_iid
+            else:
+                # 没有当前选择，使用点击的行作为起始基准
+                self._shift_start_iid = iid
+        
+        # 计算范围选择
+        start_index = self._get_item_index(self._shift_start_iid)
+        current_index = self._get_item_index(iid)
+        
+        if start_index != -1 and current_index != -1:
+            # 计算范围
+            start = min(start_index, current_index)
+            end = max(start_index, current_index)
+            
+            # 获取范围内的所有项目
+            all_items = self._get_all_tree_items()
+            self._current_range_iids = set(all_items[start:end + 1])
+            self._current_selection_mode = 'shift'
+            self._last_selected_iid = iid
+        
+        # 绘制选中的项目
+        self._plot_selected_items(self._current_range_iids)
+    
+    def _handle_ctrl_selection(self, iid):
+        """处理Ctrl累积选择"""
+        # 确保选择模式
+        if self._current_selection_mode != 'ctrl':
+            # 如果不是Ctrl模式，转换为Ctrl模式并保留当前选择
+            current_selected = self._get_current_selected_iids()
+            self._ctrl_selected_iids = current_selected.copy()  # 使用copy避免引用问题
+            self._current_selection_mode = 'ctrl'
+            self._shift_start_iid = None
+            self._current_range_iids.clear()
+        
+        # 切换选择状态
+        if iid in self._ctrl_selected_iids:
+            # 去选择
+            self._ctrl_selected_iids.remove(iid)
+        else:
+            # 添加选择
+            self._ctrl_selected_iids.add(iid)
+        
+        self._last_selected_iid = iid
+        
+        # 绘制选中的项目
+        self._plot_selected_items(self._ctrl_selected_iids)
 
     def _seg_tree_sort(self, col):
         """Sort the seg_tree by column `col` (one of the seg_cols names)."""

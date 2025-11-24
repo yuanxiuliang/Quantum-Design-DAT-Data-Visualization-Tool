@@ -9,11 +9,10 @@
 ## 📦 下载安装
 
 ### Windows版本
-- **状态**: 🚧 开发中（Wine兼容性问题）
-- **替代方案**: 使用Python源码运行：`python "Quantum Design DAT Data Visualization Tool.py"`
-- **大小**: 预计44MB
+- **下载**: [Quantum_Design_DAT_Tool_Windows.exe](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases/latest/download/Quantum_Design_DAT_Tool_Windows.exe)
+- **大小**: 46MB
 - **系统要求**: Windows 7/8/10/11 (64位)
-- **安装方式**: 双击运行，无需安装Python环境
+- **安装方式**: 直接双击运行，无需安装Python环境
 
 ### macOS版本
 - **下载**: [Quantum_Design_DAT_Tool_macOS.dmg](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases/latest/download/Quantum_Design_DAT_Tool_macOS.dmg)
@@ -74,13 +73,13 @@
 
 ### 构建安装包
 ```bash
-# 统一构建脚本（推荐）
+# macOS构建
 cd Releases/build
-./build_all.sh
+./build_macos.sh
 
-# 手动构建（如需要）
-# macOS: 使用Releases/build/build_all.sh
-# Windows: 使用Wine在macOS上构建
+# Windows构建（在Windows系统中）
+cd Releases\build
+build_windows.bat
 ```
 
 ### 环境配置
@@ -94,7 +93,6 @@ pip install -r requirements.txt
 
 # macOS额外依赖
 brew install create-dmg
-brew install --cask wine-stable  # Windows交叉编译
 ```
 
 ## 📁 项目结构
@@ -106,9 +104,11 @@ Quantum-Design-DAT-Data-Visualization-Tool/
 ├── requirements.txt                                # Python依赖
 ├── Releases/                                       # 发布文件
 │   ├── Quantum_Design_DAT_Tool_macOS.dmg          # macOS安装包
+│   ├── Quantum_Design_DAT_Tool_Windows.exe        # Windows安装包
 │   └── build/                                      # 构建脚本
-│       ├── build_all.sh                           # 统一构建脚本
-│       └── BUILD.md                               # 构建说明
+│       ├── build_macos.sh                         # macOS构建脚本
+│       ├── build_windows.bat                      # Windows构建脚本
+│       └── PACKAGING.md                           # 打包说明
 ├── .git/                                          # Git版本控制
 └── .github/                                       # GitHub配置
 ```
@@ -167,5 +167,5 @@ Quantum-Design-DAT-Data-Visualization-Tool/
 ---
 
 **开发团队**: [yuanxiuliang](https://github.com/yuanxiuliang)  
-**最后更新**: 2025年11月23日  
+**最后更新**: 2025年11月24日  
 **项目状态**: ✅ 生产就绪

@@ -9,9 +9,9 @@
 ## 📦 下载安装
 
 ### Windows版本
-- **状态**: 🚧 正在准备发布
-- **临时方案**: 使用本地构建脚本生成
-- **大小**: 44MB
+- **状态**: 🚧 开发中（Wine兼容性问题）
+- **替代方案**: 使用Python源码运行：`python "Quantum Design DAT Data Visualization Tool.py"`
+- **大小**: 预计44MB
 - **系统要求**: Windows 7/8/10/11 (64位)
 - **安装方式**: 双击运行，无需安装Python环境
 

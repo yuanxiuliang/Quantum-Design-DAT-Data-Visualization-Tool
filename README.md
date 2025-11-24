@@ -16,8 +16,7 @@
 - **安装方式**: 双击运行，无需安装Python环境
 
 ### macOS版本
-- **下载**: 本地构建或联系开发者获取
-- **构建脚本**: `Releases/build/build_all.sh`
+- **下载**: [Quantum_Design_DAT_Tool_macOS.dmg](https://github.com/yuanxiuliang/Quantum-Design-DAT-Data-Visualization-Tool/releases/latest/download/Quantum_Design_DAT_Tool_macOS.dmg)
 - **大小**: 40MB
 - **系统要求**: macOS 10.14+ (支持Intel和Apple Silicon)
 - **安装方式**: 

@@ -9,10 +9,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RELEASES_DIR="$(dirname "$SCRIPT_DIR")"
 PROJECT_ROOT="$(dirname "$RELEASES_DIR")"
 
-# 清理旧的安装包
+# 清理旧的安装包和临时文件
 echo "🧹 清理旧的安装包..."
 cd "$RELEASES_DIR"
 rm -f "Quantum_Design_DAT_Tool_macOS.dmg"
+rm -rf "temp_*"
 rm -f "Quantum Design DAT Data Visualization Tool.spec"
 
 # 设置Python路径
@@ -32,12 +33,6 @@ echo "✅ 使用Python: $($PYTHON_PATH --version)"
 echo "📦 安装Python依赖..."
 $PIP_PATH install pyinstaller pandas numpy matplotlib
 
-# 检查create-dmg
-if ! command -v create-dmg &> /dev/null; then
-    echo "❌ 错误: create-dmg未找到，请先安装: brew install create-dmg"
-    exit 1
-fi
-
 # 创建临时构建目录
 TEMP_BUILD_DIR="$RELEASES_DIR/temp_macos_build"
 rm -rf "$TEMP_BUILD_DIR"
@@ -52,12 +47,12 @@ echo "🔨 构建可执行文件..."
 cd "$TEMP_BUILD_DIR"
 $PYTHON_PATH -m PyInstaller --onefile --windowed --name "Quantum Design DAT Data Visualization Tool" "Quantum Design DAT Data Visualization Tool.py"
 
-if [ $? -eq 0 ]; then
-    echo "✅ 可执行文件构建成功！"
-else
+if [ $? -ne 0 ]; then
     echo "❌ 可执行文件构建失败"
     exit 1
 fi
+
+echo "✅ 可执行文件构建成功！"
 
 # 创建DMG安装包
 echo "📀 开始创建DMG安装包..."
@@ -70,26 +65,30 @@ mkdir -p "$DMG_DIR"
 # 复制应用程序到DMG目录
 cp -r "$TEMP_BUILD_DIR/dist/Quantum Design DAT Data Visualization Tool.app" "$DMG_DIR/"
 
+# 创建Applications文件夹链接
+ln -s /Applications "$DMG_DIR/Applications"
+
 # 创建DMG
 DMG_NAME="Quantum_Design_DAT_Tool_macOS"
 DMG_PATH="$RELEASES_DIR/${DMG_NAME}.dmg"
 
-echo "📀 创建DMG文件..."
-# 使用hdiutil创建简单的DMG
+echo "📀 创建标准DMG文件..."
+# 使用hdiutil创建简单但标准的DMG
 hdiutil create -volname "Quantum Design DAT Tool" -srcfolder "$DMG_DIR" -ov -format UDZO "$DMG_PATH"
 
-if [ $? -eq 0 ]; then
-    echo "✅ macOS版本构建成功！"
-    echo "📁 文件: $DMG_PATH"
-    echo "📏 大小: $(du -sh "$DMG_PATH" | cut -f1)"
-else
+if [ $? -ne 0 ]; then
     echo "❌ macOS DMG创建失败"
     exit 1
 fi
 
+echo "✅ macOS版本构建成功！"
+echo "📁 文件: $DMG_PATH"
+echo "📏 大小: $(du -sh "$DMG_PATH" | cut -f1)"
+
 # 清理临时文件
 echo "🧹 清理临时文件..."
 rm -rf "$TEMP_BUILD_DIR"
+rm -f "$PROJECT_ROOT/Quantum Design DAT Data Visualization Tool.spec"
 
 echo "🎉 macOS版本构建完成！"
 echo "📦 安装包位置: $DMG_PATH"

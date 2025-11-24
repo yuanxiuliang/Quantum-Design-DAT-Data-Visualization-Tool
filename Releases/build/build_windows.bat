@@ -9,10 +9,11 @@ set SCRIPT_DIR=%~dp0
 set RELEASES_DIR=%SCRIPT_DIR%..
 set PROJECT_ROOT=%RELEASES_DIR%..
 
-REM 清理旧的安装包
+REM 清理旧的安装包和临时文件
 echo 🧹 清理旧的安装包...
 cd /d "%RELEASES_DIR%"
 if exist "Quantum_Design_DAT_Tool_Windows.exe" del "Quantum_Design_DAT_Tool_Windows.exe"
+for /d %%i in (temp_*) do rmdir /s /q "%%i"
 if exist "Quantum Design DAT Data Visualization Tool.spec" del "Quantum Design DAT Data Visualization Tool.spec"
 
 REM 检查Python环境
@@ -71,6 +72,7 @@ if exist "dist\Quantum Design DAT Data Visualization Tool.exe" (
 REM 清理临时文件
 echo 🧹 清理临时文件...
 if exist "%TEMP_BUILD_DIR%" rmdir /s /q "%TEMP_BUILD_DIR%"
+if exist "%PROJECT_ROOT%\Quantum Design DAT Data Visualization Tool.spec" del "%PROJECT_ROOT%\Quantum Design DAT Data Visualization Tool.spec"
 
 echo 🎉 Windows版本构建完成！
 echo 📦 安装包位置: %RELEASES_DIR%\Quantum_Design_DAT_Tool_Windows.exe
